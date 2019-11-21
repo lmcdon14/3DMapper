@@ -349,16 +349,16 @@ namespace _3DMapper
                 this.Planes[k].B_x_avg = x_sum / (this.X_len * this.Y_len);
                 this.Planes[k].B_y_avg = y_sum / (this.X_len * this.Y_len);
                 this.Planes[k].B_z_avg = z_sum / (this.X_len * this.Y_len);
-                this.Planes[k].G_x_avg = gx_sum / (this.X_len * this.Y_len);
-                this.Planes[k].G_y_avg = gy_sum / (this.X_len * this.Y_len);
-                this.Planes[k].G_z_avg = gz_sum / (this.X_len * this.Y_len);
+                this.Planes[k].G_x_avg = gx_sum / ((this.X_len-1) * (this.Y_len-1));
+                this.Planes[k].G_y_avg = gy_sum / ((this.X_len-1) * (this.Y_len-1));
+                this.Planes[k].G_z_avg = gz_sum / ((this.X_len-1) * (this.Y_len-1));
             }
             this.B_x_avg = x_tot / (this.X_len * this.Y_len * this.Z_len);
             this.B_y_avg = y_tot / (this.X_len * this.Y_len * this.Z_len);
             this.B_z_avg = z_tot / (this.X_len * this.Y_len * this.Z_len);
-            this.G_x_avg = gx_tot / (this.X_len * this.Y_len * this.Z_len);
-            this.G_y_avg = gy_tot / (this.X_len * this.Y_len * this.Z_len);
-            this.G_z_avg = gz_tot / (this.X_len * this.Y_len * this.Z_len);
+            this.G_x_avg = gx_tot / ((this.X_len - 1) * (this.Y_len - 1) * (this.Z_len - 1));
+            this.G_y_avg = gy_tot / ((this.X_len - 1) * (this.Y_len - 1) * (this.Z_len - 1));
+            this.G_z_avg = gz_tot / ((this.X_len - 1) * (this.Y_len - 1) * (this.Z_len - 1));
         }
         public double[] Rtn_params()
         {
