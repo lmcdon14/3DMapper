@@ -1,2 +1,2 @@
-# ORNL_3DMapper
+# 3DMapper
 Magnetic field mapping device repo
