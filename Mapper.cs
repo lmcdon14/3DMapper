@@ -525,50 +525,44 @@ namespace _3DMapper
                 return 0;
             }
         }
-        public void Gen_Output(string filename)
+        public string[,] Gen_Output(string filename)
         {
-            using (StreamWriter ofile = new StreamWriter(filename))
+            string[,] output = new string[this.Z_len + 1, 10];
+            string units;
+            if (this.Metric)
             {
-                string units;
-                if (this.Metric)
-                {
-                    units = " cm^-1";
-                }
-                else
-                {
-                    units = " in^-1";
-                }
-
-                ofile.WriteLine("Overall Statistics:");
-                ofile.WriteLine("Data points: " + $"{(this.X_len * this.Y_len * this.Z_len):G}");
-                ofile.WriteLine("Avg Bx: " + $"{(this.B_x_avg):F3}" + " G");
-                ofile.WriteLine("Avg By: " + $"{(this.B_y_avg):F3}" + " G");
-                ofile.WriteLine("Avg Bz: " + $"{(this.B_z_avg):F3}" + " G");
-                ofile.WriteLine("Avg B: " + $"{((this.B_x_avg + this.B_y_avg + this.B_z_avg) / 3):F3}" + " G");
-                ofile.WriteLine("Avg Gx: " + $"{(this.G_x_avg):F3}" + units);
-                ofile.WriteLine("Avg Gy: " + $"{(this.G_y_avg):F3}" + units);
-                ofile.WriteLine("Avg Gz: " + $"{(this.G_z_avg):F3}" + units);
-                ofile.WriteLine("Avg G: " + $"{((this.G_x_avg + this.G_y_avg + this.G_z_avg)/3):F3}" + units);
-                ofile.WriteLine("");
-                ofile.WriteLine("Layer Statistics:");
-                for (int i=0; i<this.Z_len; i++)
-                {
-                    if (i != 0)
-                    {
-                        ofile.WriteLine("");
-                    }
-                    ofile.WriteLine("Z = " + Convert.ToString(this.Planes[i].Z_pos) + units.Substring(0,3));
-                    ofile.WriteLine("Data points: " + $"{(this.X_len * this.Y_len):G}");
-                    ofile.WriteLine("Avg Bx: " + $"{(this.Planes[i].B_x_avg):F3}" + " G");
-                    ofile.WriteLine("Avg By: " + $"{(this.Planes[i].B_y_avg):F3}" + " G");
-                    ofile.WriteLine("Avg Bz: " + $"{(this.Planes[i].B_z_avg):F3}" + " G");
-                    ofile.WriteLine("Avg B: " + $"{((this.Planes[i].B_x_avg + this.Planes[i].B_y_avg + this.Planes[i].B_z_avg) / 3):F3}" + " G");
-                    ofile.WriteLine("Avg Gx: " + $"{(this.Planes[i].G_x_avg):F3}" + units);
-                    ofile.WriteLine("Avg Gy: " + $"{(this.Planes[i].G_y_avg):F3}" + units);
-                    ofile.WriteLine("Avg Gz: " + $"{(this.Planes[i].G_z_avg):F3}" + units);
-                    ofile.WriteLine("Avg G: " + $"{((this.Planes[i].G_x_avg + this.Planes[i].G_y_avg + this.Planes[i].G_z_avg) / 3):F3}" + units);
-                }
+                units = " cm^-1";
             }
+            else
+            {
+                units = " in^-1";
+            }
+
+            output[0, 0] = ("Overall Statistics:");
+            output[0, 1] = ("Data points: " + $"{(this.X_len * this.Y_len * this.Z_len):G}");
+            output[0, 2] = ("Avg Bx: " + $"{(this.B_x_avg):F3}" + " G");
+            output[0, 3] = ("Avg By: " + $"{(this.B_y_avg):F3}" + " G");
+            output[0, 4] = ("Avg Bz: " + $"{(this.B_z_avg):F3}" + " G");
+            output[0, 5] = ("Avg B: " + $"{((this.B_x_avg + this.B_y_avg + this.B_z_avg) / 3):F3}" + " G");
+            output[0, 6] = ("Avg Gx: " + $"{(this.G_x_avg):F3}" + units);
+            output[0, 7] = ("Avg Gy: " + $"{(this.G_y_avg):F3}" + units);
+            output[0, 8] = ("Avg Gz: " + $"{(this.G_z_avg):F3}" + units);
+            output[0, 9] = ("Avg G: " + $"{((this.G_x_avg + this.G_y_avg + this.G_z_avg)/3):F3}" + units);
+
+            for (int i=0; i<this.Z_len; i++)
+            {
+                output[i + 1, 0] = ("Z = " + Convert.ToString(this.Planes[i].Z_pos) + units.Substring(0,3));
+                output[i + 1, 1] = "Data points: " + $"{(this.X_len * this.Y_len):G}";
+                output[i + 1, 2] = "Avg Bx: " + $"{(this.Planes[i].B_x_avg):F3}" + " G";
+                output[i + 1, 3] = "Avg By: " + $"{(this.Planes[i].B_y_avg):F3}" + " G";
+                output[i + 1, 4] = ("Avg Bz: " + $"{(this.Planes[i].B_z_avg):F3}" + " G");
+                output[i + 1, 5] = ("Avg B: " + $"{((this.Planes[i].B_x_avg + this.Planes[i].B_y_avg + this.Planes[i].B_z_avg) / 3):F3}" + " G");
+                output[i + 1, 6] = ("Avg Gx: " + $"{(this.Planes[i].G_x_avg):F3}" + units);
+                output[i + 1, 7] = ("Avg Gy: " + $"{(this.Planes[i].G_y_avg):F3}" + units);
+                output[i + 1, 8] = ("Avg Gz: " + $"{(this.Planes[i].G_z_avg):F3}" + units);
+                output[i + 1, 9] = ("Avg G: " + $"{((this.Planes[i].G_x_avg + this.Planes[i].G_y_avg + this.Planes[i].G_z_avg) / 3):F3}" + units);
+            }
+            return output;
         }
     }
 }
