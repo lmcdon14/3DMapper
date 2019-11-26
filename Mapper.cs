@@ -57,130 +57,162 @@ namespace _3DMapper
         public double Y_start { get; set; }
         public double Z_start { get; set; }
         public Boolean Metric { get; set; }
-        public Field(string filename)
+        public Field(string[] filenames)
         {
             double x, y, z;
+            bool check_file;
+            bool[] convert = new bool[filenames.Length];
+            double conversion;
 
-            if (filename.Substring(5+filename.IndexOf("scan_"),2) == "in")
+            for (int file = 0; file < filenames.Length; file++)
             {
-                this.Metric = false;
-            }
-            else
-            {
-                this.Metric = true;
-            }
-
-            //Parse data file and initialize member variables
-            using (StreamReader sr = new StreamReader(filename))
-            {
-                string data = sr.ReadLine();
-                var line = sr.ReadLine().Split('\t');
-                x = Double.Parse(line[0]);
-                this.X_step = Double.Parse(line[1]);
-                if (this.X_step != 0)
+                if (file == 0)
                 {
-                    this.X_len = Convert.ToInt32(x / this.X_step + 1);
-                }
-                else
-                {
-                    this.X_len = 1;
-                }
-                y = Double.Parse(line[2]);
-                this.Y_step = Double.Parse(line[3]);
-                if (this.Y_step != 0)
-                {
-                    this.Y_len = Convert.ToInt32(y / this.Y_step + 1);
-                }
-                else
-                {
-                    this.Y_len = 1;
-                }
-                z = Double.Parse(line[4]);
-                this.Z_step = Double.Parse(line[5]);
-                if (this.Z_step != 0)
-                {
-                    this.Z_len = Convert.ToInt32(z / this.Z_step + 1);
-                }
-                else
-                {
-                    this.Z_len = 1;
-                }
-
-                this.Planes = new Plane[this.Z_len];
-                this.Gradient = new double[this.Z_len, this.Y_len, this.X_len];
-                this.Gradient_x = new double[this.Z_len, this.Y_len, this.X_len];
-                this.Gradient_y = new double[this.Z_len, this.Y_len, this.X_len];
-                this.Gradient_z = new double[this.Z_len, this.Y_len, this.X_len];
-
-                int x_ind, y_ind, z_ind;
-                data = sr.ReadLine();
-                data = sr.ReadLine();
-                int check = 0;
-                while ((data = sr.ReadLine()) != null)
-                {
-                    Node n = new Node();
-                    line = data.Split();
-                    n.X_pos = Double.Parse(line[0]);
-                    n.Y_pos = Double.Parse(line[1]);
-                    n.Z_pos = Double.Parse(line[2]);
-                    n.B_x = Double.Parse(line[3]);
-                    n.B_y = Double.Parse(line[4]);
-                    n.B_z = Double.Parse(line[5]);
-                    n.B_v = Double.Parse(line[6]);
-                    if (check == 0)
+                    if (filenames[file].Substring(5 + filenames[file].IndexOf("scan_"), 2) == "in")
                     {
-                        this.X_start = n.X_pos;
-                        this.Y_start = n.Y_pos;
-                        this.Z_start = n.Z_pos;
-                        for (int i = 0; i < this.Z_len; i++)
-                        {
-                            Plane p = new Plane();
-                            p.Nodes = new Node[this.Y_len, this.X_len];
-                            if (this.Z_len != 1)
-                            {
-                                p.Z_pos = this.Z_start + i * this.Z_step;
-                            }
-                            else
-                            {
-                                p.Z_pos = this.Z_start;
-                            }
-                            this.Planes[i] = p;
-                        }
-                        this.B_v = new double[this.Z_len, this.Y_len, this.X_len];
-                        this.B_x = new double[this.Z_len, this.Y_len, this.X_len];
-                        this.B_y = new double[this.Z_len, this.Y_len, this.X_len];
-                        this.B_z = new double[this.Z_len, this.Y_len, this.X_len];
+                        this.Metric = false;
+                        conversion = 1/2.54;
                     }
+                    else
+                    {
+                        this.Metric = true;
+                        conversion = 2.54;
+                    }
+                    convert[file] = false;
+                }
+                else
+                {
+                    if (filenames[file].Substring(5 + filenames[file].IndexOf("scan_"), 2) == "in")
+                    {
+                        check_file = false;
+                    }
+                    else
+                    {
+                        check_file = true;
+                    }
+                    if (check_file != this.Metric)
+                    {
+                        // if different units, must convert input from text file to same units as first file
+                        convert[file] = true;
+                    }
+                    else
+                    {
+                        convert[file] = false;
+                    }
+                }
+
+                //Parse data file and initialize member variables
+                using (StreamReader sr = new StreamReader(filenames[file]))
+                {
+                    string data = sr.ReadLine();
+                    var line = sr.ReadLine().Split('\t');
+                    x = Double.Parse(line[0]);
+                    this.X_step = Double.Parse(line[1]);
                     if (this.X_step != 0)
                     {
-                        x_ind = Convert.ToInt32((n.X_pos-this.X_start) / this.X_step);
+                        this.X_len = Convert.ToInt32(x / this.X_step + 1);
                     }
                     else
                     {
-                        x_ind = 0;
+                        this.X_len = 1;
                     }
+                    y = Double.Parse(line[2]);
+                    this.Y_step = Double.Parse(line[3]);
                     if (this.Y_step != 0)
                     {
-                        y_ind = Convert.ToInt32((n.Y_pos - this.Y_start) / this.Y_step);
+                        this.Y_len = Convert.ToInt32(y / this.Y_step + 1);
                     }
                     else
                     {
-                        y_ind = 0;
+                        this.Y_len = 1;
                     }
+                    z = Double.Parse(line[4]);
+                    this.Z_step = Double.Parse(line[5]);
                     if (this.Z_step != 0)
                     {
-                        z_ind = Convert.ToInt32((n.Z_pos - this.Z_start) / this.Z_step);
+                        this.Z_len = Convert.ToInt32(z / this.Z_step + 1);
                     }
                     else
                     {
-                        z_ind = 0;
+                        this.Z_len = 1;
                     }
-                    this.Planes[z_ind].Nodes[y_ind, x_ind] = n;
-                    this.B_x[z_ind, y_ind, x_ind] = n.B_x;
-                    this.B_y[z_ind, y_ind, x_ind] = n.B_y;
-                    this.B_z[z_ind, y_ind, x_ind] = n.B_z;
-                    this.B_v[z_ind, y_ind, x_ind] = n.B_v;
-                    check++;
+
+                    this.Planes = new Plane[this.Z_len];
+                    this.Gradient = new double[this.Z_len, this.Y_len, this.X_len];
+                    this.Gradient_x = new double[this.Z_len, this.Y_len, this.X_len];
+                    this.Gradient_y = new double[this.Z_len, this.Y_len, this.X_len];
+                    this.Gradient_z = new double[this.Z_len, this.Y_len, this.X_len];
+
+                    int x_ind, y_ind, z_ind;
+                    data = sr.ReadLine();
+                    data = sr.ReadLine();
+                    int check = 0;
+                    while ((data = sr.ReadLine()) != null)
+                    {
+                        Node n = new Node();
+                        line = data.Split();
+                        n.X_pos = Double.Parse(line[0]);
+                        n.Y_pos = Double.Parse(line[1]);
+                        n.Z_pos = Double.Parse(line[2]);
+                        n.B_x = Double.Parse(line[3]);
+                        n.B_y = Double.Parse(line[4]);
+                        n.B_z = Double.Parse(line[5]);
+                        n.B_v = Double.Parse(line[6]);
+                        if (check == 0)
+                        {
+                            this.X_start = n.X_pos;
+                            this.Y_start = n.Y_pos;
+                            this.Z_start = n.Z_pos;
+                            for (int i = 0; i < this.Z_len; i++)
+                            {
+                                Plane p = new Plane();
+                                p.Nodes = new Node[this.Y_len, this.X_len];
+                                if (this.Z_len != 1)
+                                {
+                                    p.Z_pos = this.Z_start + i * this.Z_step;
+                                }
+                                else
+                                {
+                                    p.Z_pos = this.Z_start;
+                                }
+                                this.Planes[i] = p;
+                            }
+                            this.B_v = new double[this.Z_len, this.Y_len, this.X_len];
+                            this.B_x = new double[this.Z_len, this.Y_len, this.X_len];
+                            this.B_y = new double[this.Z_len, this.Y_len, this.X_len];
+                            this.B_z = new double[this.Z_len, this.Y_len, this.X_len];
+                        }
+                        if (this.X_step != 0)
+                        {
+                            x_ind = Convert.ToInt32((n.X_pos - this.X_start) / this.X_step);
+                        }
+                        else
+                        {
+                            x_ind = 0;
+                        }
+                        if (this.Y_step != 0)
+                        {
+                            y_ind = Convert.ToInt32((n.Y_pos - this.Y_start) / this.Y_step);
+                        }
+                        else
+                        {
+                            y_ind = 0;
+                        }
+                        if (this.Z_step != 0)
+                        {
+                            z_ind = Convert.ToInt32((n.Z_pos - this.Z_start) / this.Z_step);
+                        }
+                        else
+                        {
+                            z_ind = 0;
+                        }
+                        this.Planes[z_ind].Nodes[y_ind, x_ind] = n;
+                        this.B_x[z_ind, y_ind, x_ind] = n.B_x;
+                        this.B_y[z_ind, y_ind, x_ind] = n.B_y;
+                        this.B_z[z_ind, y_ind, x_ind] = n.B_z;
+                        this.B_v[z_ind, y_ind, x_ind] = n.B_v;
+                        check++;
+                    }
                 }
             }
 
@@ -525,44 +557,51 @@ namespace _3DMapper
                 return 0;
             }
         }
-        public string[,] Gen_Output(string filename)
+        public void Gen_Output(string filename)
         {
-            string[,] output = new string[this.Z_len + 1, 10];
-            string units;
-            if (this.Metric)
+            using (StreamWriter ofile = new StreamWriter(filename))
             {
-                units = " cm^-1";
-            }
-            else
-            {
-                units = " in^-1";
-            }
+                string units;
+                if (this.Metric)
+                {
+                    units = " cm^-1";
+                }
+                else
+                {
+                    units = " in^-1";
+                }
 
-            output[0, 0] = ("Overall Statistics:");
-            output[0, 1] = ("Data points: " + $"{(this.X_len * this.Y_len * this.Z_len):G}");
-            output[0, 2] = ("Avg Bx: " + $"{(this.B_x_avg):F3}" + " G");
-            output[0, 3] = ("Avg By: " + $"{(this.B_y_avg):F3}" + " G");
-            output[0, 4] = ("Avg Bz: " + $"{(this.B_z_avg):F3}" + " G");
-            output[0, 5] = ("Avg B: " + $"{((this.B_x_avg + this.B_y_avg + this.B_z_avg) / 3):F3}" + " G");
-            output[0, 6] = ("Avg Gx: " + $"{(this.G_x_avg):F3}" + units);
-            output[0, 7] = ("Avg Gy: " + $"{(this.G_y_avg):F3}" + units);
-            output[0, 8] = ("Avg Gz: " + $"{(this.G_z_avg):F3}" + units);
-            output[0, 9] = ("Avg G: " + $"{((this.G_x_avg + this.G_y_avg + this.G_z_avg)/3):F3}" + units);
+                ofile.WriteLine("Overall Statistics:");
+                ofile.WriteLine("Data points: " + $"{(this.X_len * this.Y_len * this.Z_len):G}");
+                ofile.WriteLine("Avg Bx: " + $"{(this.B_x_avg):F3}" + " G");
+                ofile.WriteLine("Avg By: " + $"{(this.B_y_avg):F3}" + " G");
+                ofile.WriteLine("Avg Bz: " + $"{(this.B_z_avg):F3}" + " G");
+                ofile.WriteLine("Avg B: " + $"{((this.B_x_avg + this.B_y_avg + this.B_z_avg) / 3):F3}" + " G");
+                ofile.WriteLine("Avg Gx: " + $"{(this.G_x_avg):F3}" + units);
+                ofile.WriteLine("Avg Gy: " + $"{(this.G_y_avg):F3}" + units);
+                ofile.WriteLine("Avg Gz: " + $"{(this.G_z_avg):F3}" + units);
+                ofile.WriteLine("Avg G: " + $"{((this.G_x_avg + this.G_y_avg + this.G_z_avg) / 3):F3}" + units);
+                ofile.WriteLine("");
+                ofile.WriteLine("Layer Statistics:");
 
-            for (int i=0; i<this.Z_len; i++)
-            {
-                output[i + 1, 0] = ("Z = " + Convert.ToString(this.Planes[i].Z_pos) + units.Substring(0,3));
-                output[i + 1, 1] = "Data points: " + $"{(this.X_len * this.Y_len):G}";
-                output[i + 1, 2] = "Avg Bx: " + $"{(this.Planes[i].B_x_avg):F3}" + " G";
-                output[i + 1, 3] = "Avg By: " + $"{(this.Planes[i].B_y_avg):F3}" + " G";
-                output[i + 1, 4] = ("Avg Bz: " + $"{(this.Planes[i].B_z_avg):F3}" + " G");
-                output[i + 1, 5] = ("Avg B: " + $"{((this.Planes[i].B_x_avg + this.Planes[i].B_y_avg + this.Planes[i].B_z_avg) / 3):F3}" + " G");
-                output[i + 1, 6] = ("Avg Gx: " + $"{(this.Planes[i].G_x_avg):F3}" + units);
-                output[i + 1, 7] = ("Avg Gy: " + $"{(this.Planes[i].G_y_avg):F3}" + units);
-                output[i + 1, 8] = ("Avg Gz: " + $"{(this.Planes[i].G_z_avg):F3}" + units);
-                output[i + 1, 9] = ("Avg G: " + $"{((this.Planes[i].G_x_avg + this.Planes[i].G_y_avg + this.Planes[i].G_z_avg) / 3):F3}" + units);
+                for (int i = 0; i < this.Z_len; i++)
+                {
+                    if (i != 0)
+                    {
+                        ofile.WriteLine("");
+                    }
+                    ofile.WriteLine("Z = " + Convert.ToString(this.Planes[i].Z_pos) + units.Substring(0, 3));
+                    ofile.WriteLine("Data points: " + $"{(this.X_len * this.Y_len):G}");
+                    ofile.WriteLine("Avg Bx: " + $"{(this.Planes[i].B_x_avg):F3}" + " G");
+                    ofile.WriteLine("Avg By: " + $"{(this.Planes[i].B_y_avg):F3}" + " G");
+                    ofile.WriteLine("Avg Bz: " + $"{(this.Planes[i].B_z_avg):F3}" + " G");
+                    ofile.WriteLine("Avg B: " + $"{((this.Planes[i].B_x_avg + this.Planes[i].B_y_avg + this.Planes[i].B_z_avg) / 3):F3}" + " G");
+                    ofile.WriteLine("Avg Gx: " + $"{(this.Planes[i].G_x_avg):F3}" + units);
+                    ofile.WriteLine("Avg Gy: " + $"{(this.Planes[i].G_y_avg):F3}" + units);
+                    ofile.WriteLine("Avg Gz: " + $"{(this.Planes[i].G_z_avg):F3}" + units);
+                    ofile.WriteLine("Avg G: " + $"{((this.Planes[i].G_x_avg + this.Planes[i].G_y_avg + this.Planes[i].G_z_avg) / 3):F3}" + units);
+                }
             }
-            return output;
         }
     }
 }
