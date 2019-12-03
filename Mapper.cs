@@ -406,63 +406,207 @@ namespace _3DMapper
             rv[8] = this.Z_step;
             return rv;
         }
-        public double[,] Rtn_B(string comp, double Z)
+        public double[,] Rtn_B(string comp, string View, double Z)
         {
-            int k = Convert.ToInt32((Z - this.Z_start) / this.Z_step);
-            double[,] rv = new double[this.Y_len, this.X_len];
-            for (int j = 0; j<this.Y_len; j++)
+            double[,] rv;
+
+            //View from top of field
+            if (View == "XY")
             {
-                for (int i = 0; i < this.X_len; i++)
+                int k = Convert.ToInt32((Z - this.Z_start) / this.Z_step);
+                rv = new double[this.Y_len, this.X_len];
+                for (int j = 0; j < this.Y_len; j++)
                 {
-                    if (comp.Equals("x"))
+                    for (int i = 0; i < this.X_len; i++)
                     {
-                        rv[j, i] = this.Planes[k].Nodes[j, i].B_x;
-                    }
-                    else if (comp.Equals("y"))
-                    {
-                        rv[j, i] = this.Planes[k].Nodes[j, i].B_y;
-                    }
-                    else if (comp.Equals("z"))
-                    {
-                        rv[j, i] = this.Planes[k].Nodes[j, i].B_z;
-                    }
-                    else
-                    {
-                        rv[j, i] = this.Planes[k].Nodes[j, i].B_v;
+                        if (comp.Equals("x"))
+                        {
+                            rv[j, i] = this.Planes[k].Nodes[j, i].B_x;
+                        }
+                        else if (comp.Equals("y"))
+                        {
+                            rv[j, i] = this.Planes[k].Nodes[j, i].B_y;
+                        }
+                        else if (comp.Equals("z"))
+                        {
+                            rv[j, i] = this.Planes[k].Nodes[j, i].B_z;
+                        }
+                        else
+                        {
+                            rv[j, i] = this.Planes[k].Nodes[j, i].B_v;
+                        }
                     }
                 }
             }
-            return rv;
-        }
-        public double[,] Rtn_grad(string comp, double Z)
-        {
-            int i = Convert.ToInt32((Z - this.Z_start) / this.Z_step);
-            double[,] rv = new double[this.Y_len, this.X_len];
-            for (int j=0; j<this.Y_len; j++)
+
+            //View from front of field
+            else if (View == "XZ")
             {
-                for (int k=0; k<this.X_len; k++)
+                int k = Convert.ToInt32((Z - this.Y_start) / this.Y_step);
+                rv = new double[this.Z_len, this.X_len];
+                for (int j = 0; j < this.Z_len; j++)
                 {
-                    if (comp.Equals("x"))
+                    for (int i = 0; i < this.X_len; i++)
                     {
-                        rv[j, k] = this.Gradient_x[i, j, k];
-                    }
-                    else if (comp.Equals("y"))
-                    {
-                        rv[j, k] = this.Gradient_y[i, j, k];
-                    }
-                    else if (comp.Equals("z"))
-                    {
-                        rv[j, k] = this.Gradient_z[i, j, k];
-                    }
-                    else
-                    {
-                        rv[j, k] = this.Gradient[i, j, k];
+                        if (comp.Equals("x"))
+                        {
+                            rv[j, i] = this.Planes[j].Nodes[k, i].B_x;
+                        }
+                        else if (comp.Equals("y"))
+                        {
+                            rv[j, i] = this.Planes[j].Nodes[k, i].B_y;
+                        }
+                        else if (comp.Equals("z"))
+                        {
+                            rv[j, i] = this.Planes[j].Nodes[k, i].B_z;
+                        }
+                        else
+                        {
+                            rv[j, i] = this.Planes[j].Nodes[k, i].B_v;
+                        }
                     }
                 }
             }
+
+            //View from left of field
+            else if (View == "YZ")
+            {
+                int k = Convert.ToInt32((Z - this.X_start) / this.X_step);
+                rv = new double[this.Z_len, this.Y_len];
+                for (int j = 0; j < this.Z_len; j++)
+                {
+                    for (int i = 0; i < this.Y_len; i++)
+                    {
+                        if (comp.Equals("x"))
+                        {
+                            rv[j, i] = this.Planes[j].Nodes[i, k].B_x;
+                        }
+                        else if (comp.Equals("y"))
+                        {
+                            rv[j, i] = this.Planes[j].Nodes[i, k].B_y;
+                        }
+                        else if (comp.Equals("z"))
+                        {
+                            rv[j, i] = this.Planes[j].Nodes[i, k].B_z;
+                        }
+                        else
+                        {
+                            rv[j, i] = this.Planes[j].Nodes[i, k].B_v;
+                        }
+                    }
+                }
+            }
+
+            //Not a valid viewing angle. Return 0 vector.
+            else
+            {
+                rv = new double[1, 1];
+                rv[1, 1] = 0;
+            }
+
             return rv;
         }
-        public double[,] Rtn_avg(string comp, double Z)
+        public double[,] Rtn_grad(string comp, string View, double Z)
+        {
+            double[,] rv;
+
+            //View from top of field
+            if (View == "XY")
+            {
+                int i = Convert.ToInt32((Z - this.Z_start) / this.Z_step);
+                rv = new double[this.Y_len, this.X_len];
+                for (int j = 0; j < this.Y_len; j++)
+                {
+                    for (int k = 0; k < this.X_len; k++)
+                    {
+                        if (comp.Equals("x"))
+                        {
+                            rv[j, k] = this.Gradient_x[i, j, k];
+                        }
+                        else if (comp.Equals("y"))
+                        {
+                            rv[j, k] = this.Gradient_y[i, j, k];
+                        }
+                        else if (comp.Equals("z"))
+                        {
+                            rv[j, k] = this.Gradient_z[i, j, k];
+                        }
+                        else
+                        {
+                            rv[j, k] = this.Gradient[i, j, k];
+                        }
+                    }
+                }
+            }
+
+            //View from front of field
+            else if (View == "XZ")
+            {
+                int i = Convert.ToInt32((Z - this.Y_start) / this.Y_step);
+                rv = new double[this.Z_len, this.X_len];
+                for (int j = 0; j < this.Z_len; j++)
+                {
+                    for (int k = 0; k < this.X_len; k++)
+                    {
+                        if (comp.Equals("x"))
+                        {
+                            rv[j, k] = this.Gradient_x[j, i, k];
+                        }
+                        else if (comp.Equals("y"))
+                        {
+                            rv[j, k] = this.Gradient_y[j, i, k];
+                        }
+                        else if (comp.Equals("z"))
+                        {
+                            rv[j, k] = this.Gradient_z[j, i, k];
+                        }
+                        else
+                        {
+                            rv[j, k] = this.Gradient[j, i, k];
+                        }
+                    }
+                }
+            }
+
+            //View from left of field
+            else if (View == "YZ")
+            {
+                int i = Convert.ToInt32((Z - this.X_start) / this.X_step);
+                rv = new double[this.Z_len, this.Y_len];
+                for (int j = 0; j < this.Z_len; j++)
+                {
+                    for (int k = 0; k < this.Y_len; k++)
+                    {
+                        if (comp.Equals("x"))
+                        {
+                            rv[j, k] = this.Gradient_x[j, k, i];
+                        }
+                        else if (comp.Equals("y"))
+                        {
+                            rv[j, k] = this.Gradient_y[j, k, i];
+                        }
+                        else if (comp.Equals("z"))
+                        {
+                            rv[j, k] = this.Gradient_z[j, k, i];
+                        }
+                        else
+                        {
+                            rv[j, k] = this.Gradient[j, k, i];
+                        }
+                    }
+                }
+            }
+
+            //Not a valid viewing angle. Return 0 vector.
+            else
+            {
+                rv = new double[1, 1];
+                rv[1, 1] = 0;
+            }
+
+            return rv;
+        }
+        public double[,] Rtn_avg(string comp, string View, double Z)
         {
             double[,] rv = new double[2,2];
             if (comp.Equals("x"))
@@ -485,27 +629,172 @@ namespace _3DMapper
                 rv[0,0] = Math.Sqrt(Math.Pow(this.B_x_avg,2) + Math.Pow(this.B_y_avg, 2) + Math.Pow(this.B_z_avg, 2));
                 rv[0,1] = Math.Sqrt(Math.Pow(this.G_x_avg, 2) + Math.Pow(this.G_y_avg, 2) + Math.Pow(this.G_z_avg, 2));
             }
-            int i = Convert.ToInt32((Z - this.Z_start) / this.Z_step);
-            if (comp.Equals("x"))
+
+            //View from top of field
+            if (View == "XY")
             {
-                rv[1, 0] = this.Planes[i].B_x_avg;
-                rv[1, 1] = this.Planes[i].G_x_avg;
+                int i = Convert.ToInt32((Z - this.Z_start) / this.Z_step);
+                if (comp.Equals("x"))
+                {
+                    rv[1, 0] = this.Planes[i].B_x_avg;
+                    rv[1, 1] = this.Planes[i].G_x_avg;
+                }
+                else if (comp.Equals("y"))
+                {
+                    rv[1, 0] = this.Planes[i].B_y_avg;
+                    rv[1, 1] = this.Planes[i].G_y_avg;
+                }
+                else if (comp.Equals("z"))
+                {
+                    rv[1, 0] = this.Planes[i].B_z_avg;
+                    rv[1, 1] = this.Planes[i].G_z_avg;
+                }
+                else
+                {
+                    rv[1, 0] = Math.Sqrt(Math.Pow(this.Planes[i].B_x_avg, 2) + Math.Pow(this.Planes[i].B_y_avg, 2) + Math.Pow(this.Planes[i].B_z_avg, 2));
+                    rv[1, 1] = Math.Sqrt(Math.Pow(this.Planes[i].G_x_avg, 2) + Math.Pow(this.Planes[i].G_y_avg, 2) + Math.Pow(this.Planes[i].G_z_avg, 2));
+                }
             }
-            else if (comp.Equals("y"))
+
+            //View from front of field
+            else if (View == "XZ")
             {
-                rv[1, 0] = this.Planes[i].B_y_avg;
-                rv[1, 1] = this.Planes[i].G_y_avg;
+                double B_sum = 0;
+                double G_sum = 0;
+                int i = Convert.ToInt32((Z - this.Y_start) / this.Y_step);
+                if (comp.Equals("x"))
+                {
+                    for (int k=0; k<this.Z_len; k++)
+                    {
+                        for (int j=0; j<this.X_len; j++)
+                        {
+                            B_sum += this.B_x[k, i, j];
+                            if (j != X_len - 1 && k != Z_len - 1)
+                            {
+                                G_sum += this.Gradient_x[k, i, j];
+                            }
+                        }
+                    }
+                }
+                else if (comp.Equals("y"))
+                {
+                    for (int k = 0; k < this.Z_len; k++)
+                    {
+                        for (int j = 0; j < this.X_len; j++)
+                        {
+                            B_sum += this.B_y[k, i, j];
+                            if (j != X_len - 1 && k != Z_len - 1)
+                            {
+                                G_sum += this.Gradient_y[k, i, j];
+                            }
+                        }
+                    }
+                }
+                else if (comp.Equals("z"))
+                {
+                    for (int k = 0; k < this.Z_len; k++)
+                    {
+                        for (int j = 0; j < this.X_len; j++)
+                        {
+                            B_sum += this.B_z[k, i, j];
+                            if (j != X_len - 1 && k != Z_len - 1)
+                            {
+                                G_sum += this.Gradient_z[k, i, j];
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    for (int k = 0; k < this.Z_len; k++)
+                    {
+                        for (int j = 0; j < this.X_len; j++)
+                        {
+                            B_sum += Math.Sqrt(Math.Pow(this.B_x[k, i, j],2)+ Math.Pow(this.B_y[k, i, j], 2)+ Math.Pow(this.B_z[k, i, j], 2));
+                            if (j != X_len - 1 && k != Z_len - 1)
+                            {
+                                G_sum += Math.Sqrt(Math.Pow(this.Gradient_x[k, i, j],2)+ Math.Pow(this.Gradient_y[k, i, j], 2)+ Math.Pow(this.Gradient_z[k, i, j], 2));
+                            }
+                        }
+                    }
+                }
+                rv[1, 0] = B_sum / (this.Z_len * this.X_len);
+                rv[1, 1] = G_sum / ((this.Z_len - 1) * (this.X_len - 1));
             }
-            else if (comp.Equals("z"))
+
+            //View from front of field
+            else if (View == "YZ")
             {
-                rv[1, 0] = this.Planes[i].B_z_avg;
-                rv[1, 1] = this.Planes[i].G_z_avg;
+                double B_sum = 0;
+                double G_sum = 0;
+                int i = Convert.ToInt32((Z - this.X_start) / this.X_step);
+                if (comp.Equals("x"))
+                {
+                    for (int k = 0; k < this.Z_len; k++)
+                    {
+                        for (int j = 0; j < this.Y_len; j++)
+                        {
+                            B_sum += this.B_x[k, j, i];
+                            if (j != Y_len - 1 && k != Z_len - 1)
+                            {
+                                G_sum += this.Gradient_x[k, j, i];
+                            }
+                        }
+                    }
+                }
+                else if (comp.Equals("y"))
+                {
+                    for (int k = 0; k < this.Z_len; k++)
+                    {
+                        for (int j = 0; j < this.Y_len; j++)
+                        {
+                            B_sum += this.B_y[k, j, i];
+                            if (j != Y_len - 1 && k != Z_len - 1)
+                            {
+                                G_sum += this.Gradient_y[k, j, i];
+                            }
+                        }
+                    }
+                }
+                else if (comp.Equals("z"))
+                {
+                    for (int k = 0; k < this.Z_len; k++)
+                    {
+                        for (int j = 0; j < this.Y_len; j++)
+                        {
+                            B_sum += this.B_z[k, j, i];
+                            if (j != Y_len - 1 && k != Z_len - 1)
+                            {
+                                G_sum += this.Gradient_z[k, j, i];
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    for (int k = 0; k < this.Z_len; k++)
+                    {
+                        for (int j = 0; j < this.Y_len; j++)
+                        {
+                            B_sum += Math.Sqrt(Math.Pow(this.B_x[k, j, i], 2) + Math.Pow(this.B_y[k, j, i], 2) + Math.Pow(this.B_z[k, j, i], 2));
+                            if (j != Y_len - 1 && k != Z_len - 1)
+                            {
+                                G_sum += Math.Sqrt(Math.Pow(this.Gradient_x[k, j, i], 2) + Math.Pow(this.Gradient_y[k, j, i], 2) + Math.Pow(this.Gradient_z[k, j, i], 2));
+                            }
+                        }
+                    }
+                }
+                rv[1, 0] = B_sum / (this.Z_len * this.Y_len);
+                rv[1, 1] = G_sum / ((this.Z_len - 1) * (this.Y_len - 1));
             }
+
+            //Not a valid viewing angle. Return 0 vector in second row.
             else
             {
-                rv[1, 0] = Math.Sqrt(Math.Pow(this.Planes[i].B_x_avg, 2) + Math.Pow(this.Planes[i].B_y_avg, 2) + Math.Pow(this.Planes[i].B_z_avg, 2));
-                rv[1, 1] = Math.Sqrt(Math.Pow(this.Planes[i].G_x_avg, 2) + Math.Pow(this.Planes[i].G_y_avg, 2) + Math.Pow(this.Planes[i].G_z_avg, 2));
+                rv[1, 0] = 0;
+                rv[1, 1] = 0;
             }
+
             return rv;
         }
         public int Rtn_ind(string comp, double val)
