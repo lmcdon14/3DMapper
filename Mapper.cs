@@ -846,6 +846,45 @@ namespace _3DMapper
                 return 0;
             }
         }
+        public int[] Rtn_Opt_Planes()
+        {
+            int[] rv = new int[4];
+            double[] mins = new double[4];
+            for (int i=0; i<this.Z_len; i++)
+            {
+                if (i==0)
+                {
+                    mins[0] = this.Planes[0].G_x_avg;
+                    mins[1] = this.Planes[0].G_y_avg;
+                    mins[2] = this.Planes[0].G_z_avg;
+                    mins[3] = Math.Sqrt(Math.Pow(this.Planes[0].G_x_avg, 2) + Math.Pow(this.Planes[0].G_y_avg, 2) + Math.Pow(this.Planes[0].G_z_avg, 2));
+                }
+                else
+                {
+                    if (this.Planes[i].G_x_avg < mins[0])
+                    {
+                        rv[0] = i;
+                        mins[0] = this.Planes[i].G_x_avg;
+                    }
+                    if (this.Planes[i].G_y_avg < mins[1])
+                    {
+                        rv[1] = i;
+                        mins[1] = this.Planes[i].G_y_avg;
+                    }
+                    if (this.Planes[i].G_z_avg < mins[2])
+                    {
+                        rv[2] = i;
+                        mins[2] = this.Planes[i].G_z_avg;
+                    }
+                    if (Math.Sqrt(Math.Pow(this.Planes[i].G_x_avg,2)+ Math.Pow(this.Planes[i].G_y_avg, 2) + Math.Pow(this.Planes[i].G_z_avg, 2)) < mins[3])
+                    {
+                        rv[3] = i;
+                        mins[3] = Math.Sqrt(Math.Pow(this.Planes[i].G_x_avg, 2) + Math.Pow(this.Planes[i].G_y_avg, 2) + Math.Pow(this.Planes[i].G_z_avg, 2));
+                    }
+                }
+            }
+            return rv;
+        }
         public void Gen_Output(string filename)
         {
             using (StreamWriter ofile = new StreamWriter(filename))
